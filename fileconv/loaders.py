@@ -332,12 +332,11 @@ class PlistLoader(LoaderProto):
     def parse(self, *args, **kwargs):
         text = get_text(self.view)
 
-        # Parsing will fail if `<?xml version="1.0" encoding="UTF-8"?>` encoding is in the first
-        # line, so strip it.
-        # XXX: Find a better way to fix this misbehaviour of xml stuff in Python
-        #      (I mean, plistliv even "writes" that line)
+        # XXX: is this if statement needed, or should this always apply
         if text.startswith('<?xml version="1.0" encoding="UTF-8"?>'):
-            text = text[38:]
+            # the xml parsers expect a byte string, not a unicode string
+            # TODO: test on st3 and old versions of st2 (this is needed on build 2221)
+            text = text.encode('utf-8')
 
         try:
             from xml.parsers.expat import ExpatError, ErrorString
